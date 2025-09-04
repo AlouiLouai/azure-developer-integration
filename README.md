@@ -47,13 +47,9 @@ Before you begin, ensure you have the following installed:
             "CosmosDbConnectionString": "YOUR_COSMOS_DB_CONNECTION_STRING",
             "COSMOS_DB_DATABASE_ID": "YOUR COSMOS_DB DATABASE ID",
             "COSMOS_DB_CONTAINER_ID": "YOUR COSMOSB_DB CONTAINER ID"
+          }   
         }
-    }
-
-    ```
-
-    ```
-
+        ```
 ## Running the Project Locally
 
 Once the setup is complete, you can start the local development server:
