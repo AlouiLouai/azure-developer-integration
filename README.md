@@ -20,31 +20,38 @@ Before you begin, ensure you have the following installed:
 ## Setup and Configuration
 
 1.  **Clone the repository:**
+
     ```bash
     git clone <your-repository-url>
     cd serverless
     ```
 
 2.  **Install dependencies:**
+
     ```bash
     npm install
     ```
 
 3.  **Configure local settings:**
 
-    This project requires a `local.settings.json` file in the root directory to store your Cosmos DB connection string. This file is not checked into source control for security reasons.
+        This project requires a `local.settings.json` file in the root directory to store your Cosmos DB connection string. This file is not checked into source control for security reasons.
 
-    Create a file named `local.settings.json` and add the following content, replacing the placeholder with your actual Cosmos DB connection string:
+        Create a file named `local.settings.json` and add the following content, replacing the placeholder with your actual Cosmos DB connection string:
 
-    ```json
-    {
-      "IsEncrypted": false,
-      "Values": {
-        "AzureWebJobsStorage": "",
-        "FUNCTIONS_WORKER_RUNTIME": "node",
-        "CosmosDbConnectionString": "YOUR_COSMOS_DB_CONNECTION_STRING"
-      }
+        ```json
+        {
+          "IsEncrypted": false,
+          "Values": {
+            "AzureWebJobsStorage": "",
+            "FUNCTIONS_WORKER_RUNTIME": "node",
+            "CosmosDbConnectionString": "YOUR_COSMOS_DB_CONNECTION_STRING",
+            "COSMOS_DB_DATABASE_ID": "YOUR COSMOS_DB DATABASE ID",
+            "COSMOS_DB_CONTAINER_ID": "YOUR COSMOSB_DB CONTAINER ID"
+        }
     }
+
+    ```
+
     ```
 
 ## Running the Project Locally
@@ -61,24 +68,25 @@ This command will build the TypeScript source and launch the Azure Functions hos
 
 The following endpoints are available:
 
-| Method | Route              | Description                               |
-| :----- | :----------------- | :---------------------------------------- |
-| `POST` | `/api/items`       | Creates a new item.                       |
-| `GET`  | `/api/items`       | Retrieves a list of all items.            |
-| `GET`  | `/api/items/{id}`  | Retrieves a single item by its ID.        |
-| `PUT`  | `/api/items/{id}`  | Replaces an existing item with new data.  |
-| `DELETE`| `/api/items/{id}`| Deletes an item by its ID.                |
+| Method   | Route             | Description                              |
+| :------- | :---------------- | :--------------------------------------- |
+| `POST`   | `/api/items`      | Creates a new item.                      |
+| `GET`    | `/api/items`      | Retrieves a list of all items.           |
+| `GET`    | `/api/items/{id}` | Retrieves a single item by its ID.       |
+| `PUT`    | `/api/items/{id}` | Replaces an existing item with new data. |
+| `DELETE` | `/api/items/{id}` | Deletes an item by its ID.               |
 
 ### Example: Create an Item
 
 **Request:** `POST /api/items`
 
 **Body:**
+
 ```json
 {
-    "name": "My New Item",
-    "price": 19.99,
-    "description": "This is a description of my new item."
+  "name": "My New Item",
+  "price": 19.99,
+  "description": "This is a description of my new item."
 }
 ```
 
@@ -87,11 +95,12 @@ The following endpoints are available:
 **Request:** `PUT /api/items/{id}`
 
 **Body:**
+
 ```json
 {
-    "name": "My Updated Item",
-    "price": 25.99,
-    "description": "This is the updated description."
+  "name": "My Updated Item",
+  "price": 25.99,
+  "description": "This is the updated description."
 }
 ```
 
