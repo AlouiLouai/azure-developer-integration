@@ -38,7 +38,7 @@ Before you begin, ensure you have the following installed:
 
         Create a file named `local.settings.json` and add the following content, replacing the placeholder with your actual Cosmos DB connection string:
 
-        ```bash
+        ```json
         {
           "IsEncrypted": false,
           "Values": {
