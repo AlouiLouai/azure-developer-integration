@@ -25,10 +25,16 @@ export async function getItem(request: HttpRequest, context: InvocationContext):
             };
         }
     } catch (error) {
-        context.log('Error fetching item from Cosmos DB:', error);
+        context.log('Error reading item from Cosmos DB:', error);
+        if (error.code === 404) {
+            return {
+                status: 404,
+                body: "Item not found."
+            };
+        }
         return {
             status: 500,
-            body: `Failed to fetch item. Error: ${error.message}`
+            body: `Failed to read item. Error: ${error.message}`
         };
     }
 };

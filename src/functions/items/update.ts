@@ -1,6 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { container } from "../../config/cosmosDBClient";
 import { Item } from "../../types/item";
+import { container } from "../../config/cosmosDBClient";
 
 export async function updateItem(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
@@ -16,13 +16,13 @@ export async function updateItem(request: HttpRequest, context: InvocationContex
 
     try {
         const itemFromRequest = await request.json() as Omit<Item, 'id'>;
-        const itemToReplace = { ...itemFromRequest, id: id };
+        const itemToUpdate: Item = { ...itemFromRequest, id: id };
 
-        const { resource: updatedItem } = await container.item(id, id).replace(itemToReplace);
+        const { resource: updatedItem } = await container.item(id, id).replace(itemToUpdate);
 
         return { jsonBody: updatedItem };
     } catch (error) {
-        context.log('Error updating item in Cosmos DB:', error);
+        context.log('Error updating item:', error);
         return {
             status: 500,
             body: `Failed to update item. Error: ${error.message}`

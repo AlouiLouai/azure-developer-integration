@@ -1,7 +1,7 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { container } from "../../config/cosmosDBClient";
 import { Item } from "../../types/item";
 import { v4 as uuidv4 } from 'uuid';
+import { container } from "../../config/cosmosDBClient";
 
 export async function createItem(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
@@ -14,7 +14,7 @@ export async function createItem(request: HttpRequest, context: InvocationContex
 
         return { jsonBody: createdItem };
     } catch (error) {
-        context.log('Error creating item in Cosmos DB:', error);
+        context.log('Error creating item:', error);
         return {
             status: 500,
             body: `Failed to create item. Error: ${error.message}`

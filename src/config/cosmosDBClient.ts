@@ -20,8 +20,8 @@ class CosmosDBClient {
 }
 
 const client = CosmosDBClient.getInstance();
-const databaseId = process.env.COSMOS_DB_DATABASE_ID || 'items';
-const containerId = process.env.COSMOS_DB_CONTAINER_ID || 'dev';
+const databaseId = process.env.COSMOS_DB_DATABASE_ID;
+const containerId = process.env.COSMOS_DB_CONTAINER_ID;
 const database = client.database(databaseId);
 
 export const container = database.container(containerId);

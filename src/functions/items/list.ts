@@ -8,10 +8,10 @@ export async function listItems(request: HttpRequest, context: InvocationContext
         const { resources: items } = await container.items.readAll().fetchAll();
         return { jsonBody: items };
     } catch (error) {
-        context.log('Error fetching items from Cosmos DB:', error);
+        context.log('Error reading items from Cosmos DB:', error);
         return {
             status: 500,
-            body: `Failed to fetch items. Error: ${error.message}`
+            body: `Failed to read items. Error: ${error.message}`
         };
     }
 };
