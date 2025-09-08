@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "nodenext",
     "target": "es6",
     "outDir": "dist",
     "sourceMap": true,
     "strict": false,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "nodenext"
   },
   "include": ["src/**/*.ts"]
 }
