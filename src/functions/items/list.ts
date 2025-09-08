@@ -1,8 +1,11 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { container } from "../../config/cosmosDBClient";
+import { getContainer } from "../../utils/getcontainer";
 
 export async function listItems(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
+
+
+    const container = getContainer('items');
 
     try {
         const { resources: items } = await container.items.readAll().fetchAll();

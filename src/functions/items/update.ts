@@ -1,6 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { Item } from "../../types/item";
-import { container } from "../../config/cosmosDBClient";
+import { getContainer } from "../../utils/getcontainer";
 
 export async function updateItem(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
@@ -13,6 +13,8 @@ export async function updateItem(request: HttpRequest, context: InvocationContex
             body: "Please provide an item ID."
         };
     }
+
+    const container = getContainer('items');
 
     try {
         const itemFromRequest = await request.json() as Omit<Item, 'id'>;

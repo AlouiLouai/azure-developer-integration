@@ -1,5 +1,5 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { container } from "../../config/cosmosDBClient";
+import { getContainer } from "../../utils/getcontainer";
 
 export async function deleteItem(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
@@ -12,6 +12,8 @@ export async function deleteItem(request: HttpRequest, context: InvocationContex
             body: "Please provide an item ID."
         };
     }
+
+    const container = getContainer('items');
 
     try {
         await container.item(id, id).delete();
