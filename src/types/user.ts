@@ -3,4 +3,7 @@ export interface User {
     username: string;
     email: string;
     password: string;
+    createdAt: string;
+    updatedAt: string;
+    profilePictureUrl?: string;
 }
