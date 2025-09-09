@@ -1,8 +1,9 @@
 export interface User {
     userId?: string;
-    username: string;
     email: string;
-    password: string;
+    provider: string;
+    providerId: string;
+    accessToken: string;
     createdAt: string;
     updatedAt: string;
     profilePictureUrl?: string;
