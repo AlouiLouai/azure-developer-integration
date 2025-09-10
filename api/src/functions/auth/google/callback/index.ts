@@ -1,7 +1,7 @@
 import { app, HttpRequest, HttpResponseInit } from "@azure/functions";
 import { OAuth2Client } from "google-auth-library";
+import * as jwt from 'jsonwebtoken';
 import { getContainer } from "../../../../utils/getcontainer";
-import { User } from "../../../../types/user";
 
 const client = new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,
@@ -15,47 +15,54 @@ app.http('google-callback', {
     route: 'auth/google/callback',
     handler: async (req: HttpRequest): Promise<HttpResponseInit> => {
         const code = req.query.get('code');
+
         if (!code) {
-            return { status: 400, body: "Authorization code not found." };
+            return { status: 400, body: "Code is required" };
         }
 
         try {
             const { tokens } = await client.getToken(code);
             client.setCredentials(tokens);
+
             const ticket = await client.verifyIdToken({
                 idToken: tokens.id_token,
                 audience: process.env.GOOGLE_CLIENT_ID,
             });
-            const payload = ticket.getPayload();
 
-            const container = getContainer('users');
-            const { resources: users } = await container.items.query({
-                query: "SELECT * FROM c WHERE c.providerId = @providerId",
-                parameters: [{
-                    name: "@providerId",
-                    value: payload.sub
-                }]
+            const payload = ticket.getPayload();
+            const { sub: googleId, email, name, picture } = payload;
+
+            const container = await getContainer('users');
+            const { resources: users } = await container.items.query({ 
+                query: "SELECT * FROM c WHERE c.googleId = @googleId",
+                parameters: [{ name: "@googleId", value: googleId }]
             }).fetchAll();
 
-            if (users.length > 0) {
-                return { jsonBody: users[0] };
+            let user = users[0];
+
+            if (!user) {
+                const newUser = {
+                    googleId,
+                    email,
+                    name,
+                    picture,
+                    createdAt: new Date(),
+                };
+                const { resource: createdUser } = await container.items.create(newUser);
+                user = createdUser;
             }
 
-            const newUser: User = {
-                email: payload.email,
-                provider: 'google',
-                providerId: payload.sub,
-                accessToken: tokens.access_token,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                profilePictureUrl: payload.picture
+            const jwtToken = jwt.sign({ id: user.id, name: user.name }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+            return {
+                status: 302,
+                headers: {
+                    Location: `${process.env.FRONTEND_URL}/auth/callback?token=${jwtToken}`
+                }
             };
-
-            const { resource: createdUser } = await container.items.create(newUser);
-            return { jsonBody: createdUser };
-
         } catch (error) {
-            return { status: 500, body: `Authentication failed: ${error.message}` };
+            console.error(error);
+            return { status: 500, body: "Internal Server Error" };
         }
     }
 });
