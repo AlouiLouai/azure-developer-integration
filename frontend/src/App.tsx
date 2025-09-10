@@ -1,9 +1,10 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './contexts/AuthContext';
 import AuthCallbackPage from './pages/AuthCallbackPage';
+import MainPage from './pages/MainPage';
+import './index.css'
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -12,16 +13,16 @@ function App() {
     <Router>
       <Routes>
         <Route path="/auth/callback" element={<AuthCallbackPage />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={<MainPage />} />
         <Route
-          path="/"
+          path="/home"
           element={
             <ProtectedRoute>
               <HomePage />
             </ProtectedRoute>
           }
         />
-        <Route path="*" element={<Navigate to={isAuthenticated ? "/" : "/login"} />} />
+        <Route path="*" element={<Navigate to={isAuthenticated ? "/home" : "/"} />} />
       </Routes>
     </Router>
   );
