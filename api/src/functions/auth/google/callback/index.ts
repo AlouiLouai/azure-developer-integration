@@ -52,12 +52,13 @@ app.http('google-callback', {
                 user = createdUser;
             }
 
-            const jwtToken = jwt.sign({ id: user.id, name: user.name }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            const jwtToken = jwt.sign({ id: user.id, name: user.name, picture: user.picture }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
             return {
                 status: 302,
                 headers: {
-                    Location: `${process.env.FRONTEND_URL}/auth/callback?token=${jwtToken}`
+                    "Set-Cookie": `authToken=${jwtToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${60 * 60}`, // Max-Age for 1 hour
+                    Location: `${process.env.FRONTEND_URL}/auth/callback`
                 }
             };
         } catch (error) {

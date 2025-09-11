@@ -8,4 +8,25 @@
       }
     }
   },
+  "extensions": {
+    "http": {
+      "routePrefix": "api"
+    }
+  },
+  "cors": {
+    "allowedOrigins": [
+      "http://localhost:3000"
+    ],
+    "supportedMethods": [
+      "GET",
+      "POST",
+      "OPTIONS"
+    ],
+    "supportedHeaders": [
+      "*"
+    ],
+    "exposedHeaders": [],
+    "allowCredentials": true,
+    "maxAge": 1200
+  }
 }

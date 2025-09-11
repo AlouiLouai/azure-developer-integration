@@ -9,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Camera, Settings } from "lucide-react"
+import { useAuth } from "@/context/AuthContext"
+import Link from "next/link"
 
 interface ProfileData {
   name: string
@@ -16,11 +18,14 @@ interface ProfileData {
   avatar: string
 }
 
+
 export function ProfileInterface() {
+  const { user } = useAuth();
+
   const [profileData, setProfileData] = useState<ProfileData>({
-    name: "Alex Doe",
-    bio: "I'm a software engineer who loves building beautiful and intuitive user interfaces. In my free time, I enjoy hiking, photography, and exploring new coffee shops.",
-    avatar: "/professional-man.png",
+    name: user?.name || "Alex Doe",
+    bio: "",
+    avatar: user?.picture || "/professional-man.png",
   })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -60,7 +65,9 @@ export function ProfileInterface() {
               />
             </svg>
           </div>
-          <h1 className="text-[#5f6368] text-xl font-medium tracking-wide">Connect</h1>
+          <Link href="/">
+            <h1 className="text-[#5f6368] text-xl font-medium tracking-wide">Connect</h1>
+          </Link>
         </div>
         <div className="flex flex-1 justify-end items-center gap-4">
           <Button variant="ghost" size="icon" className="rounded-full h-10 w-10 text-[#5f6368] hover:bg-gray-100">
@@ -68,7 +75,7 @@ export function ProfileInterface() {
           </Button>
           <Avatar className="h-10 w-10">
             <AvatarImage src={profileData.avatar || "/placeholder.svg"} alt="User avatar" />
-            <AvatarFallback>AD</AvatarFallback>
+            <AvatarFallback>{user?.name ? user.name.substring(0, 2).toUpperCase() : "AD"}</AvatarFallback>
           </Avatar>
         </div>
       </header>
