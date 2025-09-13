@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Search, MoreVertical, Smile, Paperclip, Send, MessageCircle, User, Settings } from "lucide-react"
+import { Message } from "./chat/Message"
 
-interface Message {
+interface MessageData {
   id: string
   content: string
   sender: "user" | "contact"
@@ -25,7 +26,7 @@ interface Contact {
   isOnline: boolean
 }
 
-const mockMessages: Message[] = [
+const mockMessages: MessageData[] = [
   {
     id: "1",
     content: "Hey there! How's your day going?",
@@ -84,7 +85,7 @@ const currentContact: Contact = {
 }
 
 export function ChatInterface() {
-  const [messages, setMessages] = useState<Message[]>(mockMessages)
+  const [messages, setMessages] = useState<MessageData[]>(mockMessages)
   const [newMessage, setNewMessage] = useState("")
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -101,7 +102,7 @@ export function ChatInterface() {
   const handleSendMessage = () => {
     if (!newMessage.trim()) return
 
-    const message: Message = {
+    const message: MessageData = {
       id: Date.now().toString(),
       content: newMessage.trim(),
       sender: "user",
@@ -117,7 +118,7 @@ export function ChatInterface() {
     setIsTyping(true)
     setTimeout(() => {
       setIsTyping(false)
-      const response: Message = {
+      const response: MessageData = {
         id: (Date.now() + 1).toString(),
         content: "Thanks for sharing! I'll get back to you on that.",
         sender: "contact",
@@ -138,50 +139,13 @@ export function ChatInterface() {
 
   return (
     <div className="flex h-screen bg-white">
-      
-      
-
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col">
-        
-
         {/* Messages Area */}
         <ScrollArea className="flex-1 px-6 py-4">
           <div className="space-y-6">
             {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex items-end gap-3 ${
-                  message.sender === "user" ? "justify-end ml-auto max-w-xl" : "max-w-xl"
-                }`}
-              >
-                {message.sender === "contact" && (
-                  <Avatar className="h-8 w-8 shrink-0">
-                    <AvatarImage src={message.senderAvatar || "/placeholder.svg"} />
-                    <AvatarFallback>{message.senderName[0]}</AvatarFallback>
-                  </Avatar>
-                )}
-
-                <div className={`flex flex-col gap-1 ${message.sender === "user" ? "items-end" : "items-start"}`}>
-                  <p className="text-sm font-medium text-gray-800">{message.senderName}</p>
-                  <div
-                    className={`px-4 py-3 rounded-xl text-base leading-normal ${
-                      message.sender === "user"
-                        ? "bg-blue-600 text-white rounded-br-none"
-                        : "bg-gray-100 text-gray-900 rounded-bl-none"
-                    }`}
-                  >
-                    {message.content}
-                  </div>
-                </div>
-
-                {message.sender === "user" && (
-                  <Avatar className="h-8 w-8 shrink-0">
-                    <AvatarImage src={message.senderAvatar || "/placeholder.svg"} />
-                    <AvatarFallback>{message.senderName[0]}</AvatarFallback>
-                  </Avatar>
-                )}
-              </div>
+              <Message key={message.id} {...message} />
             ))}
 
             {/* Typing Indicator */}

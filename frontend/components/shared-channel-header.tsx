@@ -1,31 +1,22 @@
 "use client"
 
 import Link from "next/link"
-import { useState, useRef, useEffect } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Search, Bell } from "lucide-react"
+import { useSharedChannelHeader } from "@/hooks/useSharedChannelHeader"
 import { useAuth } from "../context/AuthContext"
 
 export function SharedChannelHeader() {
+  const { 
+    searchQuery, 
+    setSearchQuery, 
+    isDropdownOpen, 
+    setIsDropdownOpen, 
+    dropdownRef 
+  } = useSharedChannelHeader()
   const { isAuthenticated, user, signIn, signOut } = useAuth()
-  const [searchQuery, setSearchQuery] = useState("")
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false)
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [])
 
   return (
     <div className="fixed top-0 left-0 right-0 z-10 bg-white border-b border-gray-200">

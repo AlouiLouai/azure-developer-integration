@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Search, Bell, Smile, ImageIcon, Plus } from "lucide-react"
+import { ChannelMessage } from "./chat/ChannelMessage"
 
-interface ChannelMessage {
+interface ChannelMessageData {
   id: string
   userId: string
   userName: string
@@ -27,7 +28,7 @@ interface ChannelMember {
   status: "online" | "away" | "busy" | "offline"
 }
 
-const mockMessages: ChannelMessage[] = [
+const mockMessages: ChannelMessageData[] = [
   {
     id: "1",
     userId: "sarah",
@@ -99,7 +100,7 @@ const mockMembers: ChannelMember[] = [
 ]
 
 export function ChannelChatInterface() {
-  const [messages, setMessages] = useState<ChannelMessage[]>(mockMessages)
+  const [messages, setMessages] = useState<ChannelMessageData[]>(mockMessages)
   const [newMessage, setNewMessage] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -114,7 +115,7 @@ export function ChannelChatInterface() {
 
   const handleSendMessage = () => {
     if (newMessage.trim()) {
-      const message: ChannelMessage = {
+      const message: ChannelMessageData = {
         id: Date.now().toString(),
         userId: "current",
         userName: "You",
@@ -150,8 +151,6 @@ export function ChannelChatInterface() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      
-
       {/* Main Content */}
       <main className="flex flex-1 pt-20 bg-gray-50">
         <div className="flex-1 p-8 grid grid-cols-12 gap-8">
@@ -167,38 +166,7 @@ export function ChannelChatInterface() {
             <ScrollArea className="flex-1 pr-4">
               <div className="space-y-6">
                 {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex items-start gap-4 ${message.isCurrentUser ? "justify-end" : ""}`}
-                  >
-                    {!message.isCurrentUser && (
-                      <Avatar className="w-10 h-10 shrink-0">
-                        <AvatarImage src={message.userAvatar || "/placeholder.svg"} alt={message.userName} />
-                        <AvatarFallback>{message.userName[0]}</AvatarFallback>
-                      </Avatar>
-                    )}
-
-                    <div className={`flex flex-col gap-1 ${message.isCurrentUser ? "items-end" : "items-start"}`}>
-                      <p className={`text-sm font-medium text-gray-600 ${message.isCurrentUser ? "text-right" : ""}`}>
-                        {message.userName}
-                        <span className="text-xs text-gray-400 ml-2">{message.timestamp}</span>
-                      </p>
-                      <div
-                        className={`max-w-md rounded-lg p-3 shadow-sm ${
-                          message.isCurrentUser ? "bg-blue-600 text-white" : "bg-white text-gray-800"
-                        }`}
-                      >
-                        {message.content}
-                      </div>
-                    </div>
-
-                    {message.isCurrentUser && (
-                      <Avatar className="w-10 h-10 shrink-0">
-                        <AvatarImage src={message.userAvatar || "/placeholder.svg"} alt={message.userName} />
-                        <AvatarFallback>{message.userName[0]}</AvatarFallback>
-                      </Avatar>
-                    )}
-                  </div>
+                  <ChannelMessage key={message.id} {...message} />
                 ))}
                 <div ref={messagesEndRef} />
               </div>
@@ -247,7 +215,9 @@ export function ChannelChatInterface() {
                         <AvatarFallback>{member.name[0]}</AvatarFallback>
                       </Avatar>
                       <div
-                        className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${getStatusColor(member.status)}`}
+                        className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${getStatusColor(
+                          member.status
+                        )}`}
                       />
                     </div>
                     <div className="flex-1 min-w-0">
