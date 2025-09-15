@@ -9,20 +9,7 @@ import React, {
 } from "react";
 import { useRouter } from "next/navigation";
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  picture?: string;
-}
-
-interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  loading: boolean;
-  signIn: () => void;
-  signOut: () => void;
-}
+import { User, AuthContextType } from "@/types/auth";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -32,26 +19,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    fetchUser(); // No token needed, it's in HttpOnly cookie
-  }, []);
-
-  const fetchUser = async () => { // Removed token parameter
+  const fetchUser = async () => {
+    console.log("document.cookie:", document.cookie);
     try {
-      const cachedUser = sessionStorage.getItem("cachedUser");
-      const cachedTimestamp = sessionStorage.getItem("cachedUserTimestamp");
-
-      if (cachedUser && cachedTimestamp) {
-        const fiveMinutes = 5 * 60 * 1000; // 5 minutes in milliseconds
-        if (Date.now() - parseInt(cachedTimestamp) < fiveMinutes) {
-          const userData: User = JSON.parse(cachedUser);
-          setUser(userData);
-          setIsAuthenticated(true);
-          setLoading(false);
-          return; // Use cached data and exit
-        }
-      }
-
       // Assuming an API endpoint to get user details
       // The browser will automatically send the HttpOnly cookie
       const response = await fetch("http://localhost:7071/api/user", {credentials: 'include'}); // Add credentials: 'include'
@@ -62,8 +32,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         sessionStorage.setItem("cachedUser", JSON.stringify(userData));
         sessionStorage.setItem("cachedUserTimestamp", Date.now().toString());
       } else {
-        console.error("Failed to fetch user data:", response.statusText);
-        // No localStorage.removeItem("authToken"); needed
+        const errorBody = await response.text();
+        console.error("Failed to fetch user data:", response.statusText, errorBody);
         sessionStorage.removeItem("cachedUser");
         sessionStorage.removeItem("cachedUserTimestamp");
         setUser(null);
@@ -71,7 +41,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error) {
       console.error("Error fetching user data:", error);
-      // No localStorage.removeItem("authToken"); needed
       sessionStorage.removeItem("cachedUser");
       sessionStorage.removeItem("cachedUserTimestamp");
       setUser(null);
@@ -102,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated, loading, signIn, signOut }}
+      value={{ user, isAuthenticated, loading, signIn, signOut, fetchUser }}
     >
       {children}
     </AuthContext.Provider>

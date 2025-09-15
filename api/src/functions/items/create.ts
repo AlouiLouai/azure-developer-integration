@@ -7,12 +7,17 @@ import { validate, itemSchema } from "../../utils/zodValidation";
 export async function createItem(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
 
+    const corsHeaders = {
+        "Access-Control-Allow-Origin": process.env.FRONTEND_URL,
+        "Access-Control-Allow-Credentials": "true",
+    };
+
     try {
         const item = await request.json();
         const validationResult = validate(item, itemSchema);
 
         if ('status' in validationResult) {
-            return validationResult;
+            return { ...validationResult, headers: corsHeaders };
         }
 
         const newItem: Item = { ...(validationResult as Omit<Item, 'id'>), id: uuidv4() };
@@ -21,12 +26,13 @@ export async function createItem(request: HttpRequest, context: InvocationContex
 
         const { resource: createdItem } = await container.items.create(newItem);
 
-        return { jsonBody: createdItem };
+        return { jsonBody: createdItem, headers: corsHeaders };
     } catch (error) {
         context.log('Error creating item:', error);
         return {
             status: 500,
-            body: `Failed to create item. Error: ${error.message}`
+            body: `Failed to create item. Error: ${error.message}`,
+            headers: corsHeaders
         };
     }
 };

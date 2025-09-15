@@ -12,11 +12,7 @@ import { Camera, Settings } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
 import Link from "next/link"
 
-interface ProfileData {
-  name: string
-  bio: string
-  avatar: string
-}
+import { ProfileData } from "@/types/components";
 
 
 export function ProfileInterface() {

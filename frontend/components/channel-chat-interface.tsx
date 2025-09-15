@@ -10,23 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Search, Bell, Smile, ImageIcon, Plus } from "lucide-react"
 import { ChannelMessage } from "./chat/ChannelMessage"
 
-interface ChannelMessageData {
-  id: string
-  userId: string
-  userName: string
-  userAvatar: string
-  content: string
-  timestamp: string
-  isCurrentUser: boolean
-}
-
-interface ChannelMember {
-  id: string
-  name: string
-  role: string
-  avatar: string
-  status: "online" | "away" | "busy" | "offline"
-}
+import { ChannelMessageData, ChannelMember } from "@/types/components";
 
 const mockMessages: ChannelMessageData[] = [
   {

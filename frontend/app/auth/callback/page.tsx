@@ -2,23 +2,23 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 export default function AuthCallbackPage() {
   const router = useRouter();
+  const { fetchUser } = useAuth();
 
   useEffect(() => {
-    const handleCallback = () => {
-      // With HttpOnly cookies, the token is automatically handled by the browser.
-      // This page simply serves as a redirect target after successful authentication.
+    const handleCallback = async () => {
+      await fetchUser();
       console.log('Authentication callback processed. Redirecting...');
       router.push('/'); // Redirect to a protected route or home page
     };
 
-    // Ensure this runs only once and after the component is mounted
     if (typeof window !== 'undefined') {
       handleCallback();
     }
-  }, [router]);
+  }, [router, fetchUser]);
 
   // You can render a loading state while processing the callback
   return (

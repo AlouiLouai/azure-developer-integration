@@ -20,10 +20,13 @@ app.http("signOut", {
       };
     }
 
+    const isDevelopment = process.env.FRONTEND_URL.startsWith('http://localhost');
+    const cookieAttributes = `authToken=; Path=/; SameSite=Lax; Expires=Thu, 01 Jan 1970 00:00:00 GMT${isDevelopment ? '' : '; Secure'}`;
+
     return {
       status: 200,
       headers: {
-        "Set-Cookie": "authToken=; Path=/; HttpOnly; Secure; SameSite=Lax; Expires=Thu, 01 Jan 1970 00:00:00 GMT", // Clear the cookie
+        "Set-Cookie": cookieAttributes,
         "Access-Control-Allow-Origin": process.env.FRONTEND_URL,
         "Access-Control-Allow-Credentials": "true",
       },

@@ -6,12 +6,18 @@ import { validate, itemUpdateSchema } from "../../utils/zodValidation";
 export async function updateItem(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
 
+    const corsHeaders = {
+        "Access-Control-Allow-Origin": process.env.FRONTEND_URL,
+        "Access-Control-Allow-Credentials": "true",
+    };
+
     const id = request.params.id;
 
     if (!id) {
         return {
             status: 400,
-            body: "Please provide an item ID."
+            body: "Please provide an item ID.",
+            headers: corsHeaders
         };
     }
 
@@ -22,7 +28,7 @@ export async function updateItem(request: HttpRequest, context: InvocationContex
         const validationResult = validate(itemFromRequest, itemUpdateSchema);
 
         if ('status' in validationResult) {
-            return validationResult;
+            return { ...validationResult, headers: corsHeaders };
         }
 
         const { resource: existingItem } = await container.item(id, id).read<Item>();
@@ -30,7 +36,8 @@ export async function updateItem(request: HttpRequest, context: InvocationContex
         if (!existingItem) {
             return {
                 status: 404,
-                body: "Item not found."
+                body: "Item not found.",
+                headers: corsHeaders
             };
         }
 
@@ -38,12 +45,13 @@ export async function updateItem(request: HttpRequest, context: InvocationContex
 
         const { resource: updatedItem } = await container.item(id, id).replace(itemToUpdate);
 
-        return { jsonBody: updatedItem };
+        return { jsonBody: updatedItem, headers: corsHeaders };
     } catch (error) {
         context.log('Error updating item:', error);
         return {
             status: 500,
-            body: `Failed to update item. Error: ${error.message}`
+            body: `Failed to update item. Error: ${error.message}`,
+            headers: corsHeaders
         };
     }
 };

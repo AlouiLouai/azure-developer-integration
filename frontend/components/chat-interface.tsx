@@ -10,21 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Search, MoreVertical, Smile, Paperclip, Send, MessageCircle, User, Settings } from "lucide-react"
 import { Message } from "./chat/Message"
 
-interface MessageData {
-  id: string
-  content: string
-  sender: "user" | "contact"
-  timestamp: Date
-  senderName: string
-  senderAvatar: string
-}
-
-interface Contact {
-  id: string
-  name: string
-  avatar: string
-  isOnline: boolean
-}
+import { MessageData, Contact } from "@/types/components";
 
 const mockMessages: MessageData[] = [
   {

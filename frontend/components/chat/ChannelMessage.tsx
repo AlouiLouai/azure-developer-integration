@@ -3,15 +3,7 @@ import type React from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { memo } from "react"
 
-interface ChannelMessageProps {
-  id: string
-  userId: string
-  userName: string
-  userAvatar: string
-  content: string
-  timestamp: string
-  isCurrentUser: boolean
-}
+import { ChannelMessageProps } from "@/types/chat";
 
 export const ChannelMessage = memo(
   ({ id, userId, userName, userAvatar, content, timestamp, isCurrentUser }: ChannelMessageProps) => {

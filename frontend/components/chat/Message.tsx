@@ -3,14 +3,7 @@ import type React from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { memo } from "react"
 
-interface MessageProps {
-  id: string
-  content: string
-  sender: "user" | "contact"
-  timestamp: Date
-  senderName: string
-  senderAvatar: string
-}
+import { MessageProps } from "@/types/chat";
 
 export const Message = memo(({ id, content, sender, timestamp, senderName, senderAvatar }: MessageProps) => {
   return (
