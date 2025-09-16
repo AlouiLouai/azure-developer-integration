@@ -1,5 +1,5 @@
-import { ChatChannelSidebar } from "@/components/chat-channel-sidebar";
-import { SharedChannelHeader } from "@/components/shared-channel-header";
+import { ChatChannelSidebar } from "@/components/ChatChannelSidebar";
+import { SharedChannelHeader } from "@/components/SharedChannelHeader";
 
 
 export default function ChatLayout({ children }: { children: React.ReactNode }) {

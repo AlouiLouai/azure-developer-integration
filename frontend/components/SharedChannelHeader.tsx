@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Search, Bell } from "lucide-react"
-import { useSharedChannelHeader } from "@/hooks/useSharedChannelHeader"
+import { useSharedChannelHeader } from "@/hooks/use-shared-channel-header"
 import { useAuth } from "../context/AuthContext"
 
 export function SharedChannelHeader() {

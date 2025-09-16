@@ -1,7 +1,7 @@
-import { HeroSection } from "@/components/hero-section";
+import { HeroSection } from "@/components/HeroSection";
 
-import { Footer } from "@/components/footer";
-import { Header } from "@/components/header";
+import { Footer } from "@/components/Footer";
+import { Header } from "@/components/Header";
 
 export default function HomePage() {
   return (
