@@ -19,8 +19,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
   const fetchUser = async () => {
-    console.log("document.cookie:", document.cookie);
     try {
       // Assuming an API endpoint to get user details
       // The browser will automatically send the HttpOnly cookie
@@ -31,9 +34,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIsAuthenticated(true);
         sessionStorage.setItem("cachedUser", JSON.stringify(userData));
         sessionStorage.setItem("cachedUserTimestamp", Date.now().toString());
-      } else {
+      } else if (response.status !== 401) {
         const errorBody = await response.text();
         console.error("Failed to fetch user data:", response.statusText, errorBody);
+        sessionStorage.removeItem("cachedUser");
+        sessionStorage.removeItem("cachedUserTimestamp");
+        setUser(null);
+        setIsAuthenticated(false);
+      } else {
         sessionStorage.removeItem("cachedUser");
         sessionStorage.removeItem("cachedUserTimestamp");
         setUser(null);

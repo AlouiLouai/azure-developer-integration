@@ -1,18 +1,20 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { MessageCircle, Users, User, Settings } from "lucide-react"
-
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { buttonVariants } from "@/components/ui/button"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { MessageCircle, Users, User, Settings, Home } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 
 export function ChatChannelSidebar() {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   const navItems = [
+    {
+      href: "/home",
+      icon: Home,
+      label: "Home",
+    },
     {
       href: "/chat",
       icon: MessageCircle,
@@ -33,7 +35,7 @@ export function ChatChannelSidebar() {
       icon: Settings,
       label: "Settings",
     },
-  ]
+  ];
 
   return (
     <div className="w-20 flex flex-col items-center bg-gray-100 py-4 space-y-6">
@@ -60,14 +62,6 @@ export function ChatChannelSidebar() {
           </Link>
         ))}
       </div>
-
-      {/* User Avatar */}
-      <div className="mt-auto">
-        <Avatar className="h-10 w-10">
-          <AvatarImage src="/diverse-user-avatars.png" />
-          <AvatarFallback>ME</AvatarFallback>
-        </Avatar>
-      </div>
     </div>
-  )
+  );
 }

@@ -35,20 +35,7 @@ export function SharedChannelHeader() {
               <h2 className="text-xl font-bold text-gray-800">Connect</h2>
             </Link>
           </div>
-          <nav className="flex items-center gap-6">
-            <a href="#" className="text-sm font-medium text-gray-600 hover:text-gray-900">
-              Home
-            </a>
-            <a href="#" className="text-sm font-medium text-gray-600 hover:text-gray-900">
-              Mentions
-            </a>
-            <a href="#" className="text-sm font-medium text-gray-600 hover:text-gray-900">
-              People
-            </a>
-            <a href="#" className="text-sm font-medium text-gray-600 hover:text-gray-900">
-              More
-            </a>
-          </nav>
+          
         </div>
         <div className="flex items-center gap-4">
           <div className="relative w-full max-w-xs">

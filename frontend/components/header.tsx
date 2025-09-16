@@ -7,10 +7,9 @@ import { useAuth } from "../context/AuthContext";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 export function Header() {
-  const { isAuthenticated, user, signIn, signOut } = useAuth();
+  const { isAuthenticated, user, signIn, signOut, loading } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
   const pathname = usePathname();
   const isChatOrChannelPage = pathname && (pathname.includes('/chat_channel/chat') || pathname.includes('/chat_channel/channel'));
 
@@ -68,16 +67,16 @@ export function Header() {
           </Link>
         </nav>
         <div className="flex items-center gap-2">
-          {isAuthenticated && (
+          {loading ? (
+            <div className="h-9 w-9 rounded-full bg-gray-200 animate-pulse" />
+          ) : isAuthenticated && user ? (
+            <>
             <Link
               href="/chat"
               className="hidden min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-md h-10 px-4 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100 sm:flex"
             >
               <span className="truncate">Chat Now</span>
             </Link>
-          )}
-
-          {isAuthenticated && user ? (
             <div className="relative" ref={dropdownRef}>
               <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="focus:outline-none">
                 <Avatar className="h-9 w-9">
@@ -98,6 +97,7 @@ export function Header() {
                 </div>
               )}
             </div>
+            </>
           ) : (
             <Link
               href="#"

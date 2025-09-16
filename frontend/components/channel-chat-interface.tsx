@@ -1,13 +1,12 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useRef, useEffect } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Search, Bell, Smile, ImageIcon, Plus } from "lucide-react"
+import {Smile, ImageIcon, Plus } from "lucide-react"
 import { ChannelMessage } from "./chat/ChannelMessage"
 
 import { ChannelMessageData, ChannelMember } from "@/types/components";

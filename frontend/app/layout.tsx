@@ -29,8 +29,8 @@ export const metadata: Metadata = {
     "Connect is a modern messaging app that brings your team together. Simple, beautiful, and available on all your devices.",
   generator: "Next.js 15",
   keywords: ["messaging", "team", "chat", "collaboration", "communication"],
-  authors: [{ name: "Connect Team" }],
-  creator: "Connect",
+  authors: [{ name: "Louai Aloui" }],
+  creator: "Louai Aloui",
   openGraph: {
     title: "Connect - Team Messaging App",
     description: "Connect with your team, instantly. Modern messaging for modern teams.",
