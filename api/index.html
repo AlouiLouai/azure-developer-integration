@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SignalR and Service Bus Test Client</title>
+</head>
+<body>
+    <h1>SignalR Test Client</h1>
+    <div id="messages"></div>
+
+    <hr>
+
+    <h2>Service Bus Test</h2>
+    <input type="text" id="serviceBusMessage" placeholder="Enter message for queue" />
+    <button id="sendToQueueBtn">Send to Queue</button>
+    <div id="serviceBusResult"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr@latest/dist/browser/signalr.min.js"></script>
+    <script>
+        // SignalR code
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("http://localhost:7071/api") // The negotiate endpoint is resolved by the SignalR client
+            .build();
+
+        connection.on("newMessage", (message) => {
+            const p = document.createElement("p");
+            p.textContent = JSON.stringify(message);
+            document.getElementById("messages").appendChild(p);
+        });
+
+        async function start() {
+            try {
+                await connection.start();
+                console.log("SignalR Connected.");
+            } catch (err) {
+                console.log(err);
+                // Don't retry immediately, let the user see the error
+            }
+        };
+
+        connection.onclose(async () => {
+            // Optional: handle reconnection logic
+        });
+
+        start();
+
+        // Service Bus code
+        const sendToQueueBtn = document.getElementById('sendToQueueBtn');
+        const serviceBusMessageInput = document.getElementById('serviceBusMessage');
+        const serviceBusResultDiv = document.getElementById('serviceBusResult');
+
+        sendToQueueBtn.addEventListener('click', async () => {
+            const message = serviceBusMessageInput.value;
+            if (!message) {
+                serviceBusResultDiv.textContent = 'Please enter a message.';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:7071/api/send-to-queue', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const result = await response.text();
+                serviceBusResultDiv.textContent = result;
+            } catch (error) {
+                console.error('Error sending to queue:', error);
+                serviceBusResultDiv.textContent = 'Error sending message.';
+            }
+        });
+    </script>
+</body>
+</html>
