@@ -1,12 +1,12 @@
-// api/src/functions/send-to-topic.ts
+// api/src/functions/send-to-queue.ts
 
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { sendMessageToTopic } from "../services/serviceBus";
+import { sendMessageToQueue } from "../../services/serviceBus";
 
-export async function sendToTopic(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function sendToQueue(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
 
-    const topicName = "topic"; 
+    const queueName = "queue";
     const message = await request.json();
 
     if (!message) {
@@ -17,22 +17,22 @@ export async function sendToTopic(request: HttpRequest, context: InvocationConte
     }
 
     try {
-        await sendMessageToTopic(topicName, message);
+        await sendMessageToQueue(queueName, message);
         return {
             status: 200,
-            body: `Message sent to topic ${topicName}`
+            body: `Message sent to queue ${queueName}`
         };
     } catch (error) {
         context.log(error);
         return {
             status: 500,
-            body: "Error sending message to topic."
+            body: "Error sending message to queue."
         };
     }
 };
 
-app.http('send-to-topic', {
+app.http('send-to-queue', {
     methods: ['POST'],
-    authLevel: 'function',
-    handler: sendToTopic
+    authLevel: 'anonymous', // WARNING: Not for production use. Changed for testing.
+    handler: sendToQueue
 });
