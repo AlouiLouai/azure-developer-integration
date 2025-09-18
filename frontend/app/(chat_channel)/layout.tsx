@@ -8,7 +8,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
             <ChatChannelSidebar />
             <div className="flex flex-1 flex-col">
                 <SharedChannelHeader />
-                <main className="flex-1 overflow-y-auto">{children}</main>
+                <main className="flex-1 overflow-y-auto pt-16">{children}</main>
             </div>
         </div>
     );

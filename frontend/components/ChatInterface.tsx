@@ -9,58 +9,27 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Search, MoreVertical, Smile, Paperclip, Send, MessageCircle, User, Settings } from "lucide-react"
 import { Message } from "./chat/Message"
+import * as signalR from "@microsoft/signalr";
 
 import { MessageData, Contact } from "@/types/components";
 
 const mockMessages: MessageData[] = [
-  {
-    id: "1",
-    content: "Hey there! How's your day going?",
-    sender: "contact",
-    timestamp: new Date(Date.now() - 300000),
-    senderName: "Sarah",
-    senderAvatar: "/professional-woman.png",
-  },
-  {
-    id: "2",
-    content: "Hi Sarah! It's been pretty good, just finished a big project. How about yours?",
-    sender: "user",
-    timestamp: new Date(Date.now() - 240000),
-    senderName: "You",
-    senderAvatar: "/professional-man.png",
-  },
-  {
-    id: "3",
-    content: "That's great to hear! Mine's been busy, but productive. I'm working on a new design for a client.",
-    sender: "contact",
-    timestamp: new Date(Date.now() - 180000),
-    senderName: "Sarah",
-    senderAvatar: "/professional-woman.png",
-  },
-  {
-    id: "4",
-    content: "Sounds interesting! What kind of design?",
-    sender: "user",
-    timestamp: new Date(Date.now() - 120000),
-    senderName: "You",
-    senderAvatar: "/professional-man.png",
-  },
-  {
-    id: "5",
-    content: "It's for a new e-commerce site, focusing on sustainable products. Lots of green and natural elements.",
-    sender: "contact",
-    timestamp: new Date(Date.now() - 60000),
-    senderName: "Sarah",
-    senderAvatar: "/professional-woman.png",
-  },
-  {
-    id: "6",
-    content: "Nice! That aligns well with current trends. I'm sure it'll look fantastic.",
-    sender: "user",
-    timestamp: new Date(),
-    senderName: "You",
-    senderAvatar: "/professional-man.png",
-  },
+  // {
+  //   id: "1",
+  //   content: "Hey there! How's your day going?",
+  //   sender: "contact",
+  //   timestamp: new Date(Date.now() - 300000),
+  //   senderName: "Sarah",
+  //   senderAvatar: "/professional-woman.png",
+  // },
+  // {
+  //   id: "2",
+  //   content: "Hi Sarah! It's been pretty good, just finished a big project. How about yours?",
+  //   sender: "user",
+  //   timestamp: new Date(Date.now() - 240000),
+  //   senderName: "You",
+  //   senderAvatar: "/professional-man.png",
+  // },
 ]
 
 const currentContact: Contact = {
@@ -71,11 +40,12 @@ const currentContact: Contact = {
 }
 
 export function ChatInterface() {
-  const [messages, setMessages] = useState<MessageData[]>(mockMessages)
+  const [messages, setMessages] = useState<MessageData[]>([]) // Start with empty messages
   const [newMessage, setNewMessage] = useState("")
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const connectionRef = useRef<signalR.HubConnection | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -85,35 +55,80 @@ export function ChatInterface() {
     scrollToBottom()
   }, [messages])
 
-  const handleSendMessage = () => {
+  useEffect(() => {
+    let connection: signalR.HubConnection | null = null;
+
+    const startConnection = async () => {
+      connection = new signalR.HubConnectionBuilder()
+        .withUrl("http://localhost:7071/api")
+        .withAutomaticReconnect()
+        .build();
+
+      connection.on("newMessage", (data: { id: string; message: { user: string; text: string }; createdAt: string }) => {
+        console.log("Received message from SignalR:", data);
+        setMessages((prev) => {
+          // Prevent adding duplicate messages if received multiple times
+          if (prev.some(msg => msg.id === data.id)) {
+            return prev;
+          }
+          return [
+            ...prev,
+            {
+              id: data.id,
+              content: data.message.text,
+              sender: data.message.user === "You" ? "user" : "contact",
+              timestamp: new Date(data.createdAt),
+              senderName: data.message.user,
+              senderAvatar: data.message.user === "You" ? "/professional-man.png" : "/professional-woman.png",
+            },
+          ];
+        });
+        setIsTyping(false);
+      });
+
+      try {
+        await connection.start();
+        console.log("SignalR Connected.");
+      } catch (err) {
+        console.error("SignalR Connection Error: ", err);
+        connection = null; // Clear connection if failed
+      }
+    };
+
+    startConnection();
+
+    return () => {
+      if (connection) {
+        connection.stop();
+        console.log("SignalR Disconnected.");
+      }
+    };
+  }, []); // Empty dependency array means this runs once on mount and cleanup on unmount
+
+  const handleSendMessage = async () => {
     if (!newMessage.trim()) return
 
-    const message: MessageData = {
-      id: Date.now().toString(),
-      content: newMessage.trim(),
-      sender: "user",
-      timestamp: new Date(),
-      senderName: "You",
-      senderAvatar: "/professional-man.png",
-    }
+    const messagePayload = {
+      user: "You", // Assuming the current user is "You" for now
+      text: newMessage.trim(),
+    };
 
-    setMessages((prev) => [...prev, message])
     setNewMessage("")
 
-    // Simulate typing indicator and response
-    setIsTyping(true)
-    setTimeout(() => {
-      setIsTyping(false)
-      const response: MessageData = {
-        id: (Date.now() + 1).toString(),
-        content: "Thanks for sharing! I'll get back to you on that.",
-        sender: "contact",
-        timestamp: new Date(),
-        senderName: "Sarah",
-        senderAvatar: "/professional-woman.png",
-      }
-      setMessages((prev) => [...prev, response])
-    }, 2000)
+    try {
+      // Send message to Azure Service Bus via our API function
+      await fetch('http://localhost:7071/api/send-to-queue', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(messagePayload)
+      });
+      console.log("Message sent to queue.");
+    } catch (error) {
+      console.error('Error sending message to queue:', error);
+      // Optionally, show error message
+    }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
