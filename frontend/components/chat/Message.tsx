@@ -5,6 +5,15 @@ import { memo } from "react"
 
 import { MessageProps } from "@/types/chat";
 
+const getInitials = (name: string) => {
+  if (!name) return "";
+  const parts = name.split(" ");
+  if (parts.length === 1) {
+    return parts[0][0].toUpperCase();
+  }
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
+
 export const Message = memo(({ id, content, sender, timestamp, senderName, senderAvatar }: MessageProps) => {
   return (
     <div
@@ -15,7 +24,7 @@ export const Message = memo(({ id, content, sender, timestamp, senderName, sende
       {sender === "contact" && (
         <Avatar className="h-8 w-8 shrink-0">
           <AvatarImage src={senderAvatar || "/placeholder.svg"} />
-          <AvatarFallback>{senderName[0]}</AvatarFallback>
+          <AvatarFallback>{getInitials(senderName)}</AvatarFallback>
         </Avatar>
       )}
 
@@ -34,7 +43,7 @@ export const Message = memo(({ id, content, sender, timestamp, senderName, sende
       {sender === "user" && (
         <Avatar className="h-8 w-8 shrink-0">
           <AvatarImage src={senderAvatar || "/placeholder.svg"} />
-          <AvatarFallback>{senderName[0]}</AvatarFallback>
+          <AvatarFallback>{getInitials(senderName)}</AvatarFallback>
         </Avatar>
       )}
     </div>

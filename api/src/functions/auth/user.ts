@@ -5,12 +5,12 @@ interface DecodedToken {
   name: string;
   email: string;
   picture?: string;
-  sub: string; // Google user ID
+  sub: string;
 }
 
 app.http("user", {
   methods: ["GET", "OPTIONS"],
-  authLevel: "anonymous", // This should be 'function' or 'anonymous' with proper token validation
+  authLevel: "anonymous",
   route: "user",
   handler: async (request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> => {
     context.log(`Http function processed request for url "${request.url}"`);
@@ -68,10 +68,10 @@ app.http("user", {
       }
 
       const userProfile = {
-        id: decoded.sub, // Google user ID
+        id: decoded.sub, 
         name: decoded.name,
         email: decoded.email,
-        picture: decoded.picture, // URL to user's profile picture
+        picture: decoded.picture,
       };
 
       return {

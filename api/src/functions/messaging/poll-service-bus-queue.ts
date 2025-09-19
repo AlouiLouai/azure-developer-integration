@@ -12,41 +12,88 @@ if (!serviceBusConnectionString) {
   throw new Error("SERVICE_BUS_CONNECTION_STRING environment variable not set.");
 }
 
-const sbClient = new ServiceBusClient(serviceBusConnectionString);
-const receiver = sbClient.createReceiver(queueName);
-
 app.timer('poll-service-bus-queue', {
     schedule: '*/5 * * * * *', // Run every 5 seconds
     handler: async (myTimer: Timer, context: InvocationContext) => {
         context.log('Timer trigger function started.');
 
+        const sbClient = new ServiceBusClient(serviceBusConnectionString);
+        const receiver = sbClient.createReceiver(queueName);
+
         try {
-            const messages: ServiceBusReceivedMessage[] = await receiver.receiveMessages(10, { maxWaitTimeInMs: 5000 });
+            const messages: ServiceBusReceivedMessage[] = await receiver.receiveMessages(10, { maxWaitTimeInMs: 4000 }); // slightly less than 5s schedule
 
             if (messages.length === 0) {
                 context.log('No messages received from the queue.');
                 return;
             }
 
+            context.log(`Received ${messages.length} messages from the queue.`);
+
             await Promise.all(messages.map(async (message) => {
-                context.log(`Processing message: ${message.body}`);
+                context.log(`Processing message with ID: ${message.messageId}`);
+                context.log(`Raw message body type: ${typeof message.body}`);
+                context.log(`Raw message body: ${JSON.stringify(message.body)}`);
 
                 try {
-                    const messageBody = message.body; // Assuming message.body is the actual content
+                    interface User {
+                      id: string;
+                      name: string;
+                      email: string;
+                      picture?: string;
+                    }
+
+                    interface QueueMessage {
+                      id?: string; // Add optional id
+                      sender: User;
+                      recipient: User;
+                      conversationId: string;
+                      text: string;
+                      timestamp: string;
+                    }
+
+                    const queueMessage: QueueMessage = message.body;
+
+                    context.log(`Parsed queue message: ${JSON.stringify(queueMessage)}`);
+
+                    if (!queueMessage || !queueMessage.sender || !queueMessage.conversationId) {
+                        context.log('Message is missing required properties. Abandoning.');
+                        await receiver.abandonMessage(message);
+                        return;
+                    }
 
                     // 1. Save message to Cosmos DB
                     const container = getContainer('messages');
                     const newItem = {
-                        id: uuidv4(),
-                        message: messageBody,
-                        createdAt: new Date().toISOString()
+                        id: queueMessage.id || uuidv4(), // Use client-generated ID or generate new
+                        sender: queueMessage.sender,
+                        recipient: queueMessage.recipient,
+                        conversationId: queueMessage.conversationId,
+                        text: queueMessage.text,
+                        createdAt: queueMessage.timestamp,
                     };
                     await container.items.create(newItem);
                     context.log('Message saved to Cosmos DB');
 
                     // 2. Send message to SignalR manually
-                    await sendSignalRMessage('chat', 'newMessage', [newItem]);
-                    context.log('Message sent to SignalR hub manually');
+                    const signalR_payload = {
+                        id: newItem.id,
+                        message: {
+                            sender: newItem.sender,
+                            recipient: newItem.recipient,
+                            conversationId: newItem.conversationId,
+                            text: newItem.text,
+                        },
+                        createdAt: newItem.createdAt,
+                    };
+                    context.log(`Sending to SignalR group ${newItem.conversationId} with payload: ${JSON.stringify(signalR_payload)}`);
+
+                    try {
+                        await sendSignalRMessage('chat', 'newMessage', [signalR_payload], newItem.conversationId, context);
+                        context.log('Message sent to SignalR hub manually');
+                    } catch (signalRError) {
+                        context.error('Error sending SignalR message:', signalRError);
+                    }
 
                     // Complete the message to remove it from the queue
                     await receiver.completeMessage(message);
@@ -54,20 +101,15 @@ app.timer('poll-service-bus-queue', {
 
                 } catch (innerError) {
                     context.log(`Error processing message ${message.messageId}:`, innerError);
-                    // Abandon the message so it can be retried
                     await receiver.abandonMessage(message);
                 }
             }));
         } catch (error) {
             context.log('Error polling Service Bus queue:', error);
         } finally {
-            // It's important to close the receiver and client when the function is done,
-            // but for a timer trigger that runs repeatedly, we might want to keep them open
-            // or manage their lifecycle carefully. For simplicity, we'll keep them open
-            // at the global scope for now, assuming the host manages the process lifecycle.
-            // If the function app is frequently restarted, this might lead to issues.
-            // A more robust solution would involve managing the client/receiver per invocation
-            // or using a singleton pattern with proper cleanup.
+            await receiver.close();
+            await sbClient.close();
+            context.log('Service Bus client and receiver closed.');
         }
         context.log('Timer trigger function finished.');
     },

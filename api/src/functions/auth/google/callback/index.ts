@@ -42,6 +42,7 @@ app.http('google-callback', {
 
             if (!user) {
                 const newUser = {
+                    id: googleId, // Explicitly set id to googleId
                     googleId,
                     email,
                     name,
@@ -52,7 +53,7 @@ app.http('google-callback', {
                 user = createdUser;
             }
 
-            const jwtToken = jwt.sign({ sub: user.googleId, name: user.name, email: user.email, picture: user.picture }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            const jwtToken = jwt.sign({ sub: user.id, name: user.name, email: user.email, picture: user.picture }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
             const isDevelopment = process.env.FRONTEND_URL.startsWith('http://localhost');
             const cookieAttributes = `authToken=${jwtToken}; Path=/; SameSite=Lax; Max-Age=${60 * 60}${isDevelopment ? '' : '; Secure'}`;

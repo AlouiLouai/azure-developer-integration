@@ -7,14 +7,13 @@ if (!connectionString) {
   throw new Error("SERVICE_BUS_CONNECTION_STRING environment variable not set.");
 }
 
-const sbClient = new ServiceBusClient(connectionString);
-
 /**
  * Sends a message to the specified Service Bus queue.
  * @param queueName The name of the queue.
  * @param message The message to send.
  */
 export async function sendMessageToQueue(queueName: string, message: any): Promise<void> {
+  const sbClient = new ServiceBusClient(connectionString);
   const sender = sbClient.createSender(queueName);
   try {
     const messageToSend = {
@@ -25,6 +24,7 @@ export async function sendMessageToQueue(queueName: string, message: any): Promi
     console.log(`Sent a single message to the queue: ${queueName}`);
   } finally {
     await sender.close();
+    await sbClient.close();
   }
 }
 
@@ -34,6 +34,7 @@ export async function sendMessageToQueue(queueName: string, message: any): Promi
  * @param message The message to send.
  */
 export async function sendMessageToTopic(topicName: string, message: any): Promise<void> {
+  const sbClient = new ServiceBusClient(connectionString);
   const sender = sbClient.createSender(topicName);
   try {
     const messageToSend = {
@@ -44,5 +45,6 @@ export async function sendMessageToTopic(topicName: string, message: any): Promi
     console.log(`Sent a single message to the topic: ${topicName}`);
   } finally {
     await sender.close();
+    await sbClient.close();
   }
 }
